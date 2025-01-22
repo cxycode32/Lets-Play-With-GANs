@@ -15,10 +15,6 @@ __pycache__/
 *.log
 *.DS_Store
 
-# PyTorch saved models
-*.pth
-
-runs/
-screenshots/
-data_labels.csv
-hyperparameters.txt
+checkpoints/
+logs/
+mnist_dataset/
