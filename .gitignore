@@ -1,0 +1,24 @@
+# IDE-specific files
+.vscode/
+.idea/
+
+# Virtual environment
+.env/
+venv/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Logs and temporary files
+*.log
+*.DS_Store
+
+# PyTorch saved models
+*.pth
+
+runs/
+screenshots/
+data_labels.csv
+hyperparameters.txt

@@ -1,0 +1,12 @@
+torch
+torchcam
+torchvision
+torchsummary
+umap
+pandas
+opencv-python
+albumentations
+matplotlib
+scikit-learn
+tensorflow
+tensorboard
