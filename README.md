@@ -78,7 +78,7 @@ Helper function to visualize discriminator losses and generator losses.
 ```
 def plot_losses(disc_losses, gen_losses, dir=ASSETS_DIR, filename="gan_loss.png"):
 ```
-![Fake Images GIF](./assets/gan_loss.gif)
+![Fake Images GIF](./assets/gan_loss.png)
 
 #### Tensorboard
 Run the following command:
