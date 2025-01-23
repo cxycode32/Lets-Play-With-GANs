@@ -52,10 +52,11 @@ GENERATOR_LEARNING_RATE = 1e-4
 
 
 class Discriminator(nn.Module):
-    def __init__(self, img_channels, disc_features):
+    def __init__(self, img_channels, disc_features, classes_num, img_size):
         super(Discriminator, self).__init__()
+        self.img_size = img_size
         self.disc = nn.Sequential(
-            nn.Conv2d(img_channels, disc_features, kernel_size=4, stride=2, padding=1),
+            nn.Conv2d(img_channels+1, disc_features, kernel_size=4, stride=2, padding=1),
             nn.LeakyReLU(0.2),
             
             self._block(disc_features, disc_features * 2, 4, 2, 1),
@@ -64,6 +65,7 @@ class Discriminator(nn.Module):
 
             nn.Conv2d(disc_features * 8, 1, kernel_size=4, stride=2, padding=0),
         )
+        self.embed = nn.Embedding(classes_num, img_size * img_size)
         
     def _block(self, in_channels, out_channels, kernel_size, stride, padding):
         return nn.Sequential(
@@ -72,15 +74,18 @@ class Discriminator(nn.Module):
             nn.LeakyReLU(0.2),
         )
 
-    def forward(self, x):
+    def forward(self, x, labels):
+        embedding = self.embed(labels).view(labels.shape[0], 1, self.img_size, self.img_size)
+        x = torch.cat([x, embedding], dim=1)
         return self.disc(x)
 
 
 class Generator(nn.Module):
-    def __init__(self, channels_noise, img_channels, gen_features):
+    def __init__(self, channels_noise, img_channels, gen_features, classes_num, img_size, embed_size):
         super(Generator, self).__init__()
+        self.img_size = img_size
         self.gen = nn.Sequential(
-            self._block(channels_noise, gen_features * 16, 4, 1, 0),
+            self._block(channels_noise + embed_size, gen_features * 16, 4, 1, 0),
             self._block(gen_features * 16, gen_features * 8, 4, 2, 1),
             self._block(gen_features * 8, gen_features * 4, 4, 2, 1),
             self._block(gen_features * 4, gen_features * 2, 4, 2, 1),
@@ -88,6 +93,7 @@ class Generator(nn.Module):
             nn.ConvTranspose2d(gen_features * 2, img_channels, kernel_size=4, stride=2, padding=1),
             nn.Tanh(),
         )
+        self.embed = nn.Embedding(classes_num, embed_size)
     
     def _block(self, in_channels, out_channels, kernel_size, stride, padding):
         return nn.Sequential(
@@ -96,7 +102,9 @@ class Generator(nn.Module):
             nn.LeakyReLU(0.2),
         )
 
-    def forward(self, x):
+    def forward(self, x, labels):
+        embedding = self.embed(labels).unsqueeze(2).unsqueeze(3)
+        x = torch.cat([x, embedding], dim=1)
         return self.gen(x)
 
 
@@ -160,7 +168,7 @@ def train_dcgan(discriminator, generator, fixed_noise, loader, disc_opt, gen_opt
             gen_opt.step()  # Update generator weights
             
             if batch_idx % 100 == 0:
-                print(f"EPOCH[{epoch}/{EPOCH_NUM}], "
+                print(f"EPOCH[{epoch + 1}/{EPOCH_NUM}], "
                     f"BATCH[{batch_idx}/{len(loader)}]"
                     f"DISC LOSS: {disc_loss:.2f}, "
                     f"GEN LOSS: {gen_loss:.2f}"
@@ -249,7 +257,7 @@ def train_wgan(critic, generator, fixed_noise, loader, opt_critic, opt_gen, writ
             opt_gen.step()
             
             if batch_idx % 100 == 0:
-                print(f"EPOCH[{epoch}/{EPOCH_NUM}], "
+                print(f"EPOCH[{epoch + 1}/{EPOCH_NUM}], "
                     f"BATCH[{batch_idx}/{len(loader)}]"
                     f"CRITIC LOSS: {critic_loss:.2f}, "
                     f"GEN LOSS: {gen_loss:.2f}"
