@@ -71,6 +71,10 @@ Both networks are trained adversarially, meaning the generator gets better at cr
 
 WGAN is an improvement over traditional GANs that addresses issues like mode collapse and training instability by using the Wasserstein distance (Earth Mover’s Distance) as a measure of distribution similarity instead of the Jensen-Shannon (JS) divergence used in standard GANs.
 
+### CGAN (Conditional GAN)
+
+CGAN is a variant of the standard GAN architecture where both the generator and discriminator receive additional information, such as class labels or other conditions, to guide the generation of data. This allows the model to generate data conditioned on specific inputs, enabling more controlled and diverse generation compared to vanilla GANs.
+
 ### Comparison
 
 #### Fake Images
@@ -78,14 +82,20 @@ DCGAN fake image at epoch 1:
 ![DCGAN Fake Image at Epoch 1](./dcgan_fake_images/epoch_0.png)
 WGAN fake image at epoch 1:
 ![WGAN Fake Image at Epoch 1](./wgan_fake_images/epoch_0.png)
+CGAN fake image at epoch 1:
+![CGAN Fake Image at Epoch 1](./cgan_fake_images/epoch_0.png)
 
 DCGAN fake image at epoch 5:
 ![DCGAN Fake Image at Epoch 5](./dcgan_fake_images/epoch_4.png)
 WGAN fake image at epoch 5:
 ![WGAN Fake Image at Epoch 5](./wgan_fake_images/epoch_4.png)
+CGAN fake image at epoch 5:
+![CGAN Fake Image at Epoch 5](./cgan_fake_images/epoch_4.png)
 
 WGAN fake image at epoch 10:
 ![WGAN Fake Image at Epoch 10](./wgan_fake_images/epoch_9.png)
+CGAN fake image at epoch 10:
+![CGAN Fake Image at Epoch 10](./cgan_fake_images/epoch_9.png)
 
 #### Fake Images GIF
 
@@ -93,6 +103,8 @@ DCGAN fake images GIF:
 ![DCGAN Fake Images GIF](./assets/dcgan_training.gif)
 WGAN fake images GIF:
 ![WGAN Fake Images GIF](./assets/wgan_training.gif)
+CGAN fake images GIF:
+![CGAN Fake Images GIF](./assets/cgan_training.gif)
 
 #### Discriminator and Generator Loss Visualization
 
@@ -100,6 +112,8 @@ DCGAN Loss Plot:
 ![DCGAN Loss Plot](./assets/dcgan_loss.png)
 WGAN Loss Plot:
 ![WGAN Loss Plot](./assets/wgan_loss.png)
+CGAN Loss Plot:
+![CGAN Loss Plot](./assets/cgan_loss.png)
 
 
 ## Acknowledgments

@@ -16,20 +16,52 @@ directories=[MODEL_DIR, ASSETS_DIR, IMAGE_DIR, LOG_DIR]
 
 
 def initialize_weights(model):
+    """
+    Initializes the weights of the model using a normal distribution.
+
+    Args:
+        model (torch.nn.Module): The neural network model whose weights need initialization.
+
+    Note:
+        - Applies only to convolutional layers (Conv2d, ConvTranspose2d) and BatchNorm layers.
+        - Weights are initialized from a normal distribution with mean=0 and std=0.02.
+    """
     for m in model.modules():
         if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d, nn.BatchNorm2d)):
             nn.init.normal_(m.weight.data, 0.0, 0.02)
 
 
-def gradient_penalty(critic, real, fake, device=DEVICE):
+def gradient_penalty(critic, real, fake):
+    """
+    Computes the gradient penalty to enforce the Lipschitz constraint in WGAN-GP.
+
+    Args:
+        critic (torch.nn.Module): The critic (discriminator) model.
+        real (torch.Tensor): A batch of real images.
+        fake (torch.Tensor): A batch of generated (fake) images.
+
+    Returns:
+        torch.Tensor: The gradient penalty value.
+
+    Steps:
+        1. Generates interpolated images by linearly mixing real and fake images using random alpha.
+        2. Passes the interpolated images through the critic to obtain scores.
+        3. Computes gradients of critic scores w.r.t. interpolated images.
+        4. Reshapes gradients and calculates their L2 norm.
+        5. Computes the gradient penalty as the mean squared difference from 1.
+    """
     BATCH_SIZE, C, H, W = real.shape
-    alpha = torch.rand((BATCH_SIZE, 1, 1, 1)).repeat(1, C, H, W).to(device)
+    
+    # Sample random weights (alpha) for interpolation
+    alpha = torch.rand((BATCH_SIZE, 1, 1, 1)).repeat(1, C, H, W).to(DEVICE)
+
+    # Create interpolated images between real and fake
     interpolated_images = real * alpha + fake * (1 - alpha)
 
-    # Calculate critic scores
+    # Compute critic scores for interpolated images
     mixed_scores = critic(interpolated_images)
 
-    # Take the gradient of the scores with respect to the images
+    # Compute gradients of critic scores with respect to interpolated images
     gradient = torch.autograd.grad(
         inputs=interpolated_images,
         outputs=mixed_scores,
@@ -37,9 +69,16 @@ def gradient_penalty(critic, real, fake, device=DEVICE):
         create_graph=True,
         retain_graph=True,
     )[0]
+
+    # Reshape gradient tensor
     gradient = gradient.view(gradient.shape[0], -1)
+
+    # Compute L2 norm of gradients
     gradient_norm = gradient.norm(2, dim=1)
+
+    # Compute gradient penalty (penalizing deviation from norm=1)
     gradient_penalty = torch.mean((gradient_norm - 1) ** 2)
+    
     return gradient_penalty
 
 
